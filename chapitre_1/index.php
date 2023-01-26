@@ -28,7 +28,7 @@
                 </form>
             </li>
             <li class="nav-item">
-                <a href="./home.php" class="fa-solid fa-house nav-link active" aria-current="page"> Home</a>
+                <a href="./index.php" class="fa-solid fa-house nav-link active" aria-current="page"> Home</a>
             </li>
             <li class="nav-item">
                 <a href="./post.php" class="fa-solid fa-plus nav-link active" aria-current="page"> Post</a>

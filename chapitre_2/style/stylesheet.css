@@ -1,0 +1,32 @@
+#logo{
+    color: white;
+    font-size: 36px;
+}
+
+li{
+    margin: auto;
+    margin-right:10px;
+    margin-left:10px;
+    
+}
+
+#search {
+    margin: auto;
+    width: 360px;
+    height: 38px;
+}
+
+body{
+    width: 100%;
+    box-sizing: border-box;
+}
+
+img{
+    width: 200px;
+
+}
+
+main{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
