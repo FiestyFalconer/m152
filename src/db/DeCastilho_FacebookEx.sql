@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : localhost:3306
--- Généré le : jeu. 26 jan. 2023 à 15:51
+-- Généré le : jeu. 02 fév. 2023 à 13:00
 -- Version du serveur :  10.3.37-MariaDB-0ubuntu0.20.04.1
 -- Version de PHP : 7.4.3-4ubuntu2.17
 
@@ -19,10 +19,10 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de données : `facebookEx`
+-- Base de données : `DeCastilho_FacebookEx`
 --
-CREATE DATABASE IF NOT EXISTS `facebookEx` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-USE `facebookEx`;
+CREATE DATABASE IF NOT EXISTS `DeCastilho_FacebookEx` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE `DeCastilho_FacebookEx`;
 
 -- --------------------------------------------------------
 

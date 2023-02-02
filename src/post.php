@@ -1,19 +1,50 @@
 <?php
-$submit = filter_input(INPUT_POST,'submit',FILTER_SANITIZE_SPECIAL_CHARS);
 
-if($submit == "Submit"){
-    $image = $_FILES['imageFile']['tmp_name'];
-    $description = filter_input(INPUT_POST,'description',FILTER_SANITIZE_SPECIAL_CHARS);
+/**
+ * Nom, Prenom: DE CASTILHO E SOUSA Rodrigo
+ * Projet:      Intégrer des contenus multimédias dans des applications Web
+ * Description: Créer des éléments multimédia pour des pagesWeb selon données ou
+ *              préparer, optimiser des contenus multimédia existants et intégrer dans
+ *              des pages Web existantes
+ * Date:        02/2023
+ * Version:     1.0.0.0
+ */
+require_once "./model/baseDonne.php";
+require_once "./model/tools.php";
 
-    if($description != "" && $image != ""){
+const TAILLE_MAX = 700000000;
+const UNE_IMAGE = 30000000;
 
+$submit = filter_input(INPUT_POST, 'submit', FILTER_SANITIZE_SPECIAL_CHARS);
+
+$typesImage = array("jpg", "png", "jpeg");
+
+if ($submit == "Submit") {
+    $targetDir = "/var/www/html/m152/src/uploads/";
+    $commentaire = filter_input(INPUT_POST, 'commentaire', FILTER_SANITIZE_SPECIAL_CHARS);
+
+    $nomFichiers = array_filter($_FILES['files']['name']);
+    if ($commentaire != "" && !empty($nomFichiers) &&  filesize($nomFichiers) < TAILLE_MAX) {//erreur avec la taille
+
+        foreach ($nomFichiers as $key => $val) {
+            $nomFichier = basename($nomFichiers[$key]);
+            $targetFilePath = $targetDir . $nomFichier;
+
+            // Check whether file type is valid 
+            $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
+
+            if (in_array($fileType, $typesImage) && filesize($nomFichier) < UNE_IMAGE) {//erreur avec la taille
+                if (move_uploaded_file($_FILES["files"]["tmp_name"][$key], $targetFilePath)) {
+
+                    NouvellePost($nomFichier,$fileType, $commentaire);//erreur sur la base de données
+                }
+            }
+        }
     }
 }
-
-//$img = file_get_contents($image);
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
@@ -60,11 +91,11 @@ if($submit == "Submit"){
             <form action="./post.php" enctype="multipart/form-data" method="post">
                 <div class="form-group">
                     <label for="Textarea">Ecrivez quelque chose...</label>
-                    <textarea class="form-control" name="description" id="Textarea" rows="3"></textarea>
+                    <textarea class="form-control" name="commentaire" id="Textarea" rows="3"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="File">Mettez une photo</label>
-                    <input type="file" name="imageFile" class="form-control-file" id="File">
+                    <input type="file" name="files[]" accept="image/png, image/jpg, image/jpeg" multiple class="form-control-file" id="File">
                 </div>
                 <button type="submit" name="submit" class="btn btn-primary" value="Submit">Submit</button>
             </form>
