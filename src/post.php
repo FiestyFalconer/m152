@@ -9,37 +9,54 @@
  * Date:        02/2023
  * Version:     1.0.0.0
  */
-require_once "./model/baseDonne.php";
 require_once "./model/tools.php";
 
-const TAILLE_MAX = 700000000;
-const UNE_IMAGE = 30000000;
-
+const TAILLE_MAX = 73400320;
+const UNE_IMAGE = 3145728;
+$uniquesavename="";
 $submit = filter_input(INPUT_POST, 'submit', FILTER_SANITIZE_SPECIAL_CHARS);
-
+$message = "";
+$messageConfirmation = "";
 $typesImage = array("jpg", "png", "jpeg");
 
 if ($submit == "Submit") {
     $targetDir = "/var/www/html/m152/src/uploads/";
     $commentaire = filter_input(INPUT_POST, 'commentaire', FILTER_SANITIZE_SPECIAL_CHARS);
+    $bool = true;
 
     $nomFichiers = array_filter($_FILES['files']['name']);
-    if ($commentaire != "" && !empty($nomFichiers) &&  filesize($nomFichiers) < TAILLE_MAX) {//erreur avec la taille
 
-        foreach ($nomFichiers as $key => $val) {
-            $nomFichier = basename($nomFichiers[$key]);
-            $targetFilePath = $targetDir . $nomFichier;
+    $sizeFiles = 0;
+    foreach ($_FILES['files']['size'] as $value) {
+        $sizeFiles += $value;
+    }
 
-            // Check whether file type is valid 
-            $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
+    if ($commentaire != "" && !empty($nomFichiers)) { 
 
-            if (in_array($fileType, $typesImage) && filesize($nomFichier) < UNE_IMAGE) {//erreur avec la taille
-                if (move_uploaded_file($_FILES["files"]["tmp_name"][$key], $targetFilePath)) {
+        if ($sizeFiles < TAILLE_MAX) {//erreur avec la taille
+            foreach ($nomFichiers as $key => $val) {
+                $nomFichier = basename($nomFichiers[$key]);
+                $targetFilePath = $targetDir.$uniquesavename. $nomFichier;
 
-                    NouvellePost($nomFichier,$fileType, $commentaire);//erreur sur la base de données
+                // Check whether file type is valid 
+                $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
+
+                if (in_array($fileType, $typesImage) && $_FILES['files']['size'][$key] < UNE_IMAGE) { //erreur avec la taille/type
+                    if (move_uploaded_file($_FILES["files"]["tmp_name"][$key], $targetFilePath)) {
+                        $uniquesavename=time().uniqid(rand());
+                        NouvellePost($uniquesavename.$nomFichier, $fileType, $commentaire, $bool); 
+                        $message = '<div id="messageErreur" class="alert alert-success">Post créé</div>';
+                        $bool = false;
+                    }
+                } else {
+                    $message = '<div id="messageErreur" class="alert alert-danger">ERREUR : Image(s) trop grand(es) ou pas une image </div>';
                 }
             }
+        } else {
+            $message = '<div id="messageErreur" class="alert alert-danger">ERREUR : Image(s) trop grand(es) </div>';
         }
+    } else {
+        $message = '<div id="messageErreur" class="alert alert-danger">ERREUR : Il faut mettre une image(s)/commentaire </div>';
     }
 }
 ?>
@@ -51,10 +68,10 @@ if ($submit == "Submit") {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Post</title>
-    <link rel="stylesheet" href="./style/stylesheet.css">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css" integrity="sha512-YWzhKL2whUzgiheMoBFwW8CKV4qpHQAEuvilg9FAn5VJUDwKZZxkJNuGM4XkWuk94WCrrwslk8yWNGmY1EduTA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
+    <link rel="stylesheet" href="./style/stylesheet.css">
 </head>
 
 <body>
@@ -99,7 +116,12 @@ if ($submit == "Submit") {
                 </div>
                 <button type="submit" name="submit" class="btn btn-primary" value="Submit">Submit</button>
             </form>
+
+
+            <?=$message?>
+
         </div>
+
 
     </main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>

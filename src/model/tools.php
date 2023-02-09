@@ -12,17 +12,41 @@
 
 require_once("baseDonne.php");
 
-function NouvellePost($imageName, $type, $commentaire)
+function NouvellePost($imageName, $type, $commentaire, $bool)
 {
-    $query = ConnexionBD()->prepare("
-        INSERT INTO `POST`(`commentaire`) 
-        VALUES (?);
-    ");
-    $query->execute([$commentaire]);
-    $query = ConnexionBD()->prepare("
+    if ($bool) {
+        try {
+            $query = ConnexionBD()->prepare("
+            INSERT INTO `POST`(`commentaire`) 
+            VALUES (?);
+            ");
+            $query->execute([$commentaire]);
+        } catch (PDOException $e) {
+            echo 'Exception reçue : ',  $e->getMessage(), "\n";
+        }
+    }
+    try {
+        $query = ConnexionBD()->prepare("
         INSERT INTO `MEDIA`(`typeMedia`, `nomMedia`, `idPost`) 
-        VALUES (?,?,LAST_INSERT_ID());
-    ");
-    $query->execute([$type, $imageName]);
-    
+        VALUES (?,?,(SELECT `idPost` FROM `POST` WHERE `commentaire` = ?));
+        ");
+        $query->execute([$type, $imageName, $commentaire]);
+    } catch (PDOException $e) {
+        echo 'Exception reçue : ',  $e->getMessage(), "\n";
+    }
+}
+
+function RecupererPosts()
+{
+    try {
+        $query = ConnexionBD()->prepare("
+        SELECT `commentaire`, `nomMedia` 
+        FROM `POST`,`MEDIA` 
+        WHERE `POST`.`idPost` = `MEDIA`.`idPost` 
+        ");
+        $query->execute();
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        echo 'Exception reçue : ',  $e->getMessage(), "\n";
+    }
 }

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : localhost:3306
--- Généré le : jeu. 02 fév. 2023 à 13:00
+-- Généré le : jeu. 09 fév. 2023 à 13:28
 -- Version du serveur :  10.3.37-MariaDB-0ubuntu0.20.04.1
 -- Version de PHP : 7.4.3-4ubuntu2.17
 
@@ -35,8 +35,7 @@ CREATE TABLE `MEDIA` (
   `typeMedia` text NOT NULL,
   `nomMedia` text NOT NULL,
   `creationMedia` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `idPost` int(11) NOT NULL,
-  `image` blob NOT NULL
+  `idPost` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 -- --------------------------------------------------------
@@ -77,23 +76,23 @@ ALTER TABLE `POST`
 -- AUTO_INCREMENT pour la table `MEDIA`
 --
 ALTER TABLE `MEDIA`
-  MODIFY `idMedia` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idMedia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT pour la table `POST`
 --
 ALTER TABLE `POST`
-  MODIFY `idPost` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idPost` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- Contraintes pour les tables déchargées
 --
 
 --
--- Contraintes pour la table `POST`
+-- Contraintes pour la table `MEDIA`
 --
-ALTER TABLE `POST`
-  ADD CONSTRAINT `POST_ibfk_1` FOREIGN KEY (`idPost`) REFERENCES `MEDIA` (`idPost`);
+ALTER TABLE `MEDIA`
+  ADD CONSTRAINT `MEDIA_ibfk_1` FOREIGN KEY (`idPost`) REFERENCES `POST` (`idPost`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
