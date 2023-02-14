@@ -35,15 +35,17 @@ if ($submit == "Submit") {
 
         if ($sizeFiles < TAILLE_MAX) {//erreur avec la taille
             foreach ($nomFichiers as $key => $val) {
+                $uniquesavename=time().uniqid(rand());
                 $nomFichier = basename($nomFichiers[$key]);
-                $targetFilePath = $targetDir.$uniquesavename. $nomFichier;
+                $targetFilePath = $targetDir.$uniquesavename.$nomFichier;
 
                 // Check whether file type is valid 
                 $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
 
                 if (in_array($fileType, $typesImage) && $_FILES['files']['size'][$key] < UNE_IMAGE) { //erreur avec la taille/type
+                    
                     if (move_uploaded_file($_FILES["files"]["tmp_name"][$key], $targetFilePath)) {
-                        $uniquesavename=time().uniqid(rand());
+
                         NouvellePost($uniquesavename.$nomFichier, $fileType, $commentaire, $bool); 
                         $message = '<div id="messageErreur" class="alert alert-success">Post créé</div>';
                         $bool = false;
