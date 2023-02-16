@@ -12,30 +12,24 @@
 require_once "./model/tools.php";
 
 $posts = RecupererPosts();
-$acientCommentaire = "";
-$affichage = '<div class="container">';
+$affichage = '<div class="container"><div class="row">';
+$images = "";
 
 foreach ($posts as $unPost) {;
-    if ($unPost['commentaire'] == $acientCommentaire) {
-        $affichage.= ' <img class="card-img-top" src="./uploads/'.$unPost['nomMedia'].'">';
-        $affichage.= '<p>'.$unPost['commentaire'].'</p>';
-        $affichage .= '</div></div></div>';
-    }
-    else{
-        $affichage .= '<div class="card mb-4 box-shadow"><div class="row"> <div class="col-sm">';
-        $acientCommentaire = $unPost['commentaire'];
-        $affichage.= ' <img class="card-img-top" src="./uploads/'.$unPost['nomMedia'].'">';
-    }
+    $affichage .= '<div class="col-md-4"><div class="card mb-4 box-shadow">';
 
-    if(count($unPost) == 1){
-        $affichage .= '<div class="card mb-4 box-shadow"><div class="row"> <div class="col-sm">';
-        $acientCommentaire = $unPost['commentaire'];
-        $affichage.= ' <img class="card-img-top" src="./uploads/'.$unPost['nomMedia'].'">';
-        
+    $images = RecupererImages($unPost['idPost']);
+
+    foreach ($images as $image) {
+        $affichage .= '<img id="images" class="card-img-top" src="./uploads/' . $image['nomMedia'] . '" alt="Grapefruit slice atop a pile of other slices">';
     }
+    $affichage .= '<div class="card-body"><p class="card-text">' . $unPost['commentaire'] . '</p></div>';
+
+    $affichage .= "</div></div>";
 }
 
-$affichage .= "</div></div></div></div>";
+
+$affichage .= "</div></div>";
 
 ?>
 <!DOCTYPE html>
@@ -87,10 +81,16 @@ $affichage .= "</div></div></div></div>";
         <div class="container">
             <p><img src="./img/imageProfil.png" alt="imageProfil"></p>
         </div>
+        <div class="container">
+            <video width="320" height="240" autoplay loop muted>
+                <source src="./videos/cat.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
 
-            <?= $affichage ?>
-            
-    
+
+        <?= $affichage ?>
+
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>

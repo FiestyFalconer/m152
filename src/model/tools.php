@@ -14,24 +14,43 @@ require_once("baseDonne.php");
 
 function NouvellePost($imageName, $type, $commentaire, $bool)
 {
-    if ($bool) {
-        try {
-            $query = ConnexionBD()->prepare("
-            INSERT INTO `POST`(`commentaire`) 
-            VALUES (?);
-            ");
-            $query->execute([$commentaire]);
-        } catch (PDOException $e) {
-            echo 'Exception reçue : ',  $e->getMessage(), "\n";
-        }
-    }
+    $db = ConnexionBD();
     try {
+        $db->beginTransaction();
+        if ($bool) {
+            $query = ConnexionBD()->prepare("
+                INSERT INTO `POST`(`commentaire`) 
+                VALUES (?);
+                ");
+            $query->execute([$commentaire]);
+        }
+
         $query = ConnexionBD()->prepare("
-        INSERT INTO `MEDIA`(`typeMedia`, `nomMedia`, `idPost`) 
-        VALUES (?,?,(SELECT `idPost` FROM `POST` WHERE `commentaire` = ?));
-        ");
+            INSERT INTO `MEDIA`(`typeMedia`, `nomMedia`, `idPost`) 
+            VALUES (?,?,(SELECT `idPost` FROM `POST` WHERE `commentaire` = ?));
+            ");
         $query->execute([$type, $imageName, $commentaire]);
+
+        $db->commit();
     } catch (PDOException $e) {
+        $db->rollback();
+        echo 'Exception reçue : ',  $e->getMessage(), "\n";
+    }
+}
+
+function NouvelleCommentaire($commentaire)
+{
+    $db = ConnexionBD();
+    try {
+        $db->beginTransaction();
+        $query = ConnexionBD()->prepare("
+                INSERT INTO `POST`(`commentaire`) 
+                VALUES (?);
+                ");
+        $query->execute([$commentaire]);
+        $db->commit();
+    } catch (PDOException $e) {
+        $db->rollback();
         echo 'Exception reçue : ',  $e->getMessage(), "\n";
     }
 }
@@ -40,11 +59,24 @@ function RecupererPosts()
 {
     try {
         $query = ConnexionBD()->prepare("
-        SELECT `commentaire`, `nomMedia` 
-        FROM `POST`,`MEDIA` 
-        WHERE `POST`.`idPost` = `MEDIA`.`idPost` 
+        SELECT `commentaire`, `idPost`
+        FROM `POST` 
         ");
         $query->execute();
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        echo 'Exception reçue : ',  $e->getMessage(), "\n";
+    }
+}
+
+function RecupererImages($idPost){
+    try {
+        $query = ConnexionBD()->prepare("
+        SELECT `nomMedia`
+        FROM `MEDIA` 
+        WHERE `idPost` = ?
+        ");
+        $query->execute([$idPost]);
         return $query->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
         echo 'Exception reçue : ',  $e->getMessage(), "\n";

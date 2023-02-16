@@ -1,13 +1,13 @@
-#logo{
+#logo {
     color: white;
     font-size: 36px;
 }
 
-li{
+li {
     margin: auto;
-    margin-right:10px;
-    margin-left:10px;
-    
+    margin-right: 10px;
+    margin-left: 10px;
+
 }
 
 #search {
@@ -16,22 +16,21 @@ li{
     height: 38px;
 }
 
-body{
+body {
     width: 100%;
     box-sizing: border-box;
 }
 
-img{
+img {
     width: 200px;
-
 }
 
-main{
+main {
     margin-top: 10px;
     margin-bottom: 10px;
 }
 
-#messageErreur{
-    margin-top:10px;
-    
+#messageErreur {
+    margin-top: 10px;
+
 }

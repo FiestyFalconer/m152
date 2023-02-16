@@ -1,6 +1,5 @@
 <?php
-
-/**
+/*
  * Nom, Prenom: DE CASTILHO E SOUSA Rodrigo
  * Projet:      Intégrer des contenus multimédias dans des applications Web
  * Description: Créer des éléments multimédia pour des pagesWeb selon données ou
@@ -11,41 +10,47 @@
  */
 require_once "./model/tools.php";
 
+//constantes
 const TAILLE_MAX = 73400320;
 const UNE_IMAGE = 3145728;
+
 $uniquesavename="";
 $submit = filter_input(INPUT_POST, 'submit', FILTER_SANITIZE_SPECIAL_CHARS);
 $message = "";
 $messageConfirmation = "";
-$typesImage = array("jpg", "png", "jpeg");
+$typesImage = array("image/jpg", "image/png", "image/jpeg");
 
 if ($submit == "Submit") {
-    $targetDir = "/var/www/html/m152/src/uploads/";
+    $targetDir = dirname(__DIR__)."/src/uploads/";
     $commentaire = filter_input(INPUT_POST, 'commentaire', FILTER_SANITIZE_SPECIAL_CHARS);
     $bool = true;
 
     $nomFichiers = array_filter($_FILES['files']['name']);
 
     $sizeFiles = 0;
+    //recuperer la somme des tailees des images
     foreach ($_FILES['files']['size'] as $value) {
         $sizeFiles += $value;
     }
 
     if ($commentaire != "" && !empty($nomFichiers)) { 
 
-        if ($sizeFiles < TAILLE_MAX) {//erreur avec la taille
+        if ($sizeFiles < TAILLE_MAX) {
             foreach ($nomFichiers as $key => $val) {
                 $uniquesavename=time().uniqid(rand());
                 $nomFichier = basename($nomFichiers[$key]);
                 $targetFilePath = $targetDir.$uniquesavename.$nomFichier;
 
-                // Check whether file type is valid 
+               
                 $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
+                // recuperer le type de fichier grace a mime_content_type 
+                $mimeType = mime_content_type($_FILES["files"]["tmp_name"][$key]);
 
-                if (in_array($fileType, $typesImage) && $_FILES['files']['size'][$key] < UNE_IMAGE) { //erreur avec la taille/type
-                    
+                //tester si c'est le bon type d'image et la bonne taille
+                if (in_array($mimeType, $typesImage) && $_FILES['files']['size'][$key] < UNE_IMAGE) {
+                    //tester si on arrive a garder les images sur le serveur
                     if (move_uploaded_file($_FILES["files"]["tmp_name"][$key], $targetFilePath)) {
-
+                        //creer un post
                         NouvellePost($uniquesavename.$nomFichier, $fileType, $commentaire, $bool); 
                         $message = '<div id="messageErreur" class="alert alert-success">Post créé</div>';
                         $bool = false;
@@ -57,8 +62,13 @@ if ($submit == "Submit") {
         } else {
             $message = '<div id="messageErreur" class="alert alert-danger">ERREUR : Image(s) trop grand(es) </div>';
         }
-    } else {
-        $message = '<div id="messageErreur" class="alert alert-danger">ERREUR : Il faut mettre une image(s)/commentaire </div>';
+    } else if($commentaire != "") {
+        //creer un post avec un commentaire mais sans images
+        NouvelleCommentaire($commentaire);
+        $message = '<div id="messageErreur" class="alert alert-success">Post créé</div>';
+    }
+    else{
+         $message = '<div id="messageErreur" class="alert alert-danger">ERREUR : Il faut mettre au moins un commentaire </div>';
     }
 }
 ?>

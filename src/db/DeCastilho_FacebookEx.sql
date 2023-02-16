@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : localhost:3306
--- Généré le : jeu. 09 fév. 2023 à 13:28
+-- Généré le : jeu. 16 fév. 2023 à 13:12
 -- Version du serveur :  10.3.37-MariaDB-0ubuntu0.20.04.1
 -- Version de PHP : 7.4.3-4ubuntu2.17
 
@@ -47,8 +47,8 @@ CREATE TABLE `MEDIA` (
 CREATE TABLE `POST` (
   `idPost` int(11) NOT NULL,
   `commentaire` text NOT NULL,
-  `creationDate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `modificationDate` timestamp NOT NULL DEFAULT current_timestamp()
+  `modificationDate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `creationDate` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
@@ -76,13 +76,13 @@ ALTER TABLE `POST`
 -- AUTO_INCREMENT pour la table `MEDIA`
 --
 ALTER TABLE `MEDIA`
-  MODIFY `idMedia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `idMedia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT pour la table `POST`
 --
 ALTER TABLE `POST`
-  MODIFY `idPost` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `idPost` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- Contraintes pour les tables déchargées
