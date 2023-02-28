@@ -12,20 +12,20 @@
 
 require_once("baseDonne.php");
 
-function NouvellePost($imageName, $type, $commentaire, $bool)
+function NouveauPost($imageName, $type, $commentaire, $bool)
 {
-    $db = ConnexionBD();
     try {
+        $db = ConnexionBD();
         $db->beginTransaction();
         if ($bool) {
-            $query = ConnexionBD()->prepare("
+            $query = $db->prepare("
                 INSERT INTO `POST`(`commentaire`) 
                 VALUES (?);
                 ");
             $query->execute([$commentaire]);
         }
 
-        $query = ConnexionBD()->prepare("
+        $query = $db->prepare("
             INSERT INTO `MEDIA`(`typeMedia`, `nomMedia`, `idPost`) 
             VALUES (?,?,(SELECT MAX(`idPost`) FROM `POST` WHERE `commentaire` = ?));
             ");
@@ -40,10 +40,10 @@ function NouvellePost($imageName, $type, $commentaire, $bool)
 
 function NouveauCommentaire($commentaire)
 {
-    $db = ConnexionBD();
     try {
+        $db = ConnexionBD();
         $db->beginTransaction();
-        $query = ConnexionBD()->prepare("
+        $query = $db->prepare("
                 INSERT INTO `POST`(`commentaire`) 
                 VALUES (?);
                 ");
@@ -69,7 +69,8 @@ function RecupererPosts()
     }
 }
 
-function RecupererImages($idPost){
+function RecupererImages($idPost)
+{
     try {
         $query = ConnexionBD()->prepare("
         SELECT `nomMedia`, `typeMedia`

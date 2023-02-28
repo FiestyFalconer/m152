@@ -51,7 +51,7 @@ if ($submit == "Submit") {
                     //tester si on arrive a garder les images sur le serveur
                     if (move_uploaded_file($_FILES["files"]["tmp_name"][$key], $targetFilePath)) {
                         //creer un post
-                        NouvellePost($uniquesavename.$nomFichier, $fileType, $commentaire, $bool); 
+                        NouveauPost($uniquesavename.$nomFichier, $fileType, $commentaire, $bool); 
                         $message = '<div id="messageErreur" class="alert alert-success">Post créé</div>';
                         $bool = false;
                     }
