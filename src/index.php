@@ -28,7 +28,6 @@ foreach ($posts as $unPost) {;
     $affichage .= "</div></div>";
 }
 
-
 $affichage .= "</div></div>";
 
 ?>
@@ -87,8 +86,7 @@ $affichage .= "</div></div>";
                 Your browser does not support the video tag.
             </video>
         </div>
-
-
+ 
         <?= $affichage ?>
 
     </main>

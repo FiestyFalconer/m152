@@ -27,7 +27,7 @@ function NouvellePost($imageName, $type, $commentaire, $bool)
 
         $query = ConnexionBD()->prepare("
             INSERT INTO `MEDIA`(`typeMedia`, `nomMedia`, `idPost`) 
-            VALUES (?,?,(SELECT `idPost` FROM `POST` WHERE `commentaire` = ?));
+            VALUES (?,?,(SELECT MAX(`idPost`) FROM `POST` WHERE `commentaire` = ?));
             ");
         $query->execute([$type, $imageName, $commentaire]);
 
@@ -38,7 +38,7 @@ function NouvellePost($imageName, $type, $commentaire, $bool)
     }
 }
 
-function NouvelleCommentaire($commentaire)
+function NouveauCommentaire($commentaire)
 {
     $db = ConnexionBD();
     try {
