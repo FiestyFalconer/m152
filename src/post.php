@@ -18,7 +18,7 @@ $uniquesavename="";
 $submit = filter_input(INPUT_POST, 'submit', FILTER_SANITIZE_SPECIAL_CHARS);
 $message = "";
 $messageConfirmation = "";
-$typesImage = array("image/jpg", "image/png", "image/jpeg");
+$typesImage = array("image/jpg", "image/png", "image/jpeg", "video/mp4");
 
 if ($submit == "Submit") {
     $targetDir = dirname(__DIR__)."/src/uploads/";
@@ -124,7 +124,7 @@ if ($submit == "Submit") {
                 </div>
                 <div class="form-group">
                     <label for="File">Mettez une photo</label>
-                    <input type="file" name="files[]" accept="image/png, image/jpg, image/jpeg" multiple class="form-control-file" id="File">
+                    <input type="file" name="files[]" accept="image/png, image/jpg, image/jpeg, video/mp4" multiple class="form-control-file" id="File">
                 </div>
                 <button type="submit" name="submit" class="btn btn-primary" value="Submit">Submit</button>
             </form>

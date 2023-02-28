@@ -13,16 +13,23 @@ require_once "./model/tools.php";
 
 $posts = RecupererPosts();
 $affichage = '<div class="container"><div class="row">';
-$images = "";
+$donnees = "";
 
 foreach ($posts as $unPost) {;
     $affichage .= '<div class="col-md-4"><div class="card mb-4 box-shadow">';
 
-    $images = RecupererImages($unPost['idPost']);
+    $donnees = RecupererImages($unPost['idPost']);
 
-    foreach ($images as $image) {
-        $affichage .= '<img id="images" class="card-img-top" src="./uploads/' . $image['nomMedia'] . '" alt="Grapefruit slice atop a pile of other slices">';
+
+    foreach ($donnees as $donnee) {
+        if ($donnee['typeMedia'] == "jpg" || $donnee['typeMedia'] == "png" || $donnee['typeMedia'] == 'jpeg') {
+            $affichage .= '<img id="images" class="card-img-top" src="./uploads/' . $donnee['nomMedia'] . '" alt="'. $donnee['nomMedia'] .'">';
+        } else if ($donnee['typeMedia'] == "mp4") {
+            $affichage .= '  <video autoplay loop muted><source  src="./uploads/' . $donnee['nomMedia'] . '" alt="'.$donnee['nomMedia'] .'"></video>';
+        }
     }
+
+
     $affichage .= '<div class="card-body"><p class="card-text">' . $unPost['commentaire'] . '</p></div>';
 
     $affichage .= "</div></div>";
@@ -80,13 +87,7 @@ $affichage .= "</div></div>";
         <div class="container">
             <p><img src="./img/imageProfil.png" alt="imageProfil"></p>
         </div>
-        <div class="container">
-            <video width="320" height="240" autoplay loop muted>
-                <source src="./videos/cat.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        </div>
- 
+
         <?= $affichage ?>
 
     </main>

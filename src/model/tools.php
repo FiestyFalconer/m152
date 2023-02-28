@@ -72,7 +72,7 @@ function RecupererPosts()
 function RecupererImages($idPost){
     try {
         $query = ConnexionBD()->prepare("
-        SELECT `nomMedia`
+        SELECT `nomMedia`, `typeMedia`
         FROM `MEDIA` 
         WHERE `idPost` = ?
         ");
