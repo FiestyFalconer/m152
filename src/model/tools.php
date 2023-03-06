@@ -12,28 +12,71 @@
 
 require_once("baseDonne.php");
 
-function NouveauPost($imageName, $type, $commentaire, $bool)
+const UNE_IMAGE = 3145728;
+
+function NouveauPost($commentaire, $nomFichiers, $targetDir, $typesDonnees)
 {
     try {
         $db = ConnexionBD();
         $db->beginTransaction();
-        if ($bool) {
-            $query = $db->prepare("
+
+        //declaration des variables
+        $message = "";
+        $uniquesavename = "";
+        $mimeType = "";
+        $etatTransaction = true;
+
+        //insérer le commentaire dans la base de données
+        $query = $db->prepare("
                 INSERT INTO `POST`(`commentaire`) 
                 VALUES (?);
-                ");
-            $query->execute([$commentaire]);
-        }
-
-        $query = $db->prepare("
-            INSERT INTO `MEDIA`(`typeMedia`, `nomMedia`, `idPost`) 
-            VALUES (?,?,(SELECT MAX(`idPost`) FROM `POST` WHERE `commentaire` = ?));
             ");
-        $query->execute([$type, $imageName, $commentaire]);
+        $query->execute([$commentaire]);
 
-        $db->commit();
+        //foreach pour parcourir les differents fichiers
+        foreach ($nomFichiers as $key => $val) {
+
+            //creer une partie du nom unique
+            $uniquesavename=time().uniqid(rand());
+            $nomFichier = basename($nomFichiers[$key]);
+            //avoir le path du fichier
+            $targetFilePath = $targetDir.$uniquesavename.$nomFichier;
+
+            //recuperer le type de fichier pour le mettre dans la base de données
+            $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
+            // recuperer le type de fichier grace a mime_content_type 
+            $mimeType = mime_content_type($_FILES["files"]["tmp_name"][$key]);
+
+            //tester si c'est le bon type d'image et la bonne taille
+            if (in_array($mimeType, $typesDonnees) && $_FILES['files']['size'][$key] < UNE_IMAGE) {
+                //tester si on arrive a garder les images sur le serveur
+                if (move_uploaded_file($_FILES["files"]["tmp_name"][$key], $targetFilePath)) {
+                    //message de success
+                    $message = '<div id="messageErreur" class="alert alert-success">Post créé</div>';
+                    //insérer le fichier dans la base de données
+                    $query = $db->prepare("
+                        INSERT INTO `MEDIA`(`typeMedia`, `nomMedia`, `idPost`) 
+                        VALUES (?,?,(SELECT MAX(`idPost`) FROM `POST` WHERE `commentaire` = ?));
+                    ");
+                    $query->execute([$fileType, $uniquesavename.$nomFichier, $commentaire]);
+
+                }
+            } else {
+                $db->rollback();
+                $etatTransaction = false;
+                //message d'erreur
+                $message = '<div id="messageErreur" class="alert alert-danger">ERREUR : Image(s) trop grand(es) ou pas une image </div>';
+            }
+        }
+        //verifier l'etat de la trasaction
+        if($etatTransaction){
+            $db->commit();
+        }
+        
+        //renvoie le message
+        return $message;
+
     } catch (PDOException $e) {
-        $db->rollback();
         echo 'Exception reçue : ',  $e->getMessage(), "\n";
     }
 }

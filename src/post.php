@@ -12,13 +12,12 @@ require_once "./model/tools.php";
 
 //constantes
 const TAILLE_MAX = 73400320;
-const UNE_IMAGE = 3145728;
 
-$uniquesavename="";
+
 $submit = filter_input(INPUT_POST, 'submit', FILTER_SANITIZE_SPECIAL_CHARS);
 $message = "";
 $messageConfirmation = "";
-$typesImage = array("image/jpg", "image/png", "image/jpeg", "video/mp4");
+$typesDonnees = array("image/jpg", "image/png", "image/jpeg", "video/mp4", "audio/mpeg");
 
 if ($submit == "Submit") {
     $targetDir = dirname(__DIR__)."/src/uploads/";
@@ -36,33 +35,12 @@ if ($submit == "Submit") {
     if ($commentaire != "" && !empty($nomFichiers)) { 
 
         if ($sizeFiles < TAILLE_MAX) {
-            foreach ($nomFichiers as $key => $val) {
-                $uniquesavename=time().uniqid(rand());
-                $nomFichier = basename($nomFichiers[$key]);
-                $targetFilePath = $targetDir.$uniquesavename.$nomFichier;
-
-               
-                $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
-                // recuperer le type de fichier grace a mime_content_type 
-                $mimeType = mime_content_type($_FILES["files"]["tmp_name"][$key]);
-
-                //tester si c'est le bon type d'image et la bonne taille
-                if (in_array($mimeType, $typesImage) && $_FILES['files']['size'][$key] < UNE_IMAGE) {
-                    //tester si on arrive a garder les images sur le serveur
-                    if (move_uploaded_file($_FILES["files"]["tmp_name"][$key], $targetFilePath)) {
-                        //creer un post
-                        NouveauPost($uniquesavename.$nomFichier, $fileType, $commentaire, $bool); 
-                        $message = '<div id="messageErreur" class="alert alert-success">Post créé</div>';
-                        $bool = false;
-                    }
-                } else {
-                    $message = '<div id="messageErreur" class="alert alert-danger">ERREUR : Image(s) trop grand(es) ou pas une image </div>';
-                }
-            }
+            $message = NouveauPost($commentaire, $nomFichiers, $targetDir, $typesDonnees);
         } else {
             $message = '<div id="messageErreur" class="alert alert-danger">ERREUR : Image(s) trop grand(es) </div>';
+            exit();
         }
-    } else if($commentaire != "") {
+    } else if($commentaire != "" && empty($nomFichiers)) {
         //creer un post avec un commentaire mais sans images
         NouveauCommentaire($commentaire);
         $message = '<div id="messageErreur" class="alert alert-success">Post créé</div>';
@@ -124,7 +102,7 @@ if ($submit == "Submit") {
                 </div>
                 <div class="form-group">
                     <label for="File">Mettez une photo</label>
-                    <input type="file" name="files[]" accept="image/png, image/jpg, image/jpeg, video/mp4" multiple class="form-control-file" id="File">
+                    <input type="file" name="files[]" accept="audio/mp3, image/png, image/jpg, image/jpeg, video/mp4" multiple class="form-control-file" id="File">
                 </div>
                 <button type="submit" name="submit" class="btn btn-primary" value="Submit">Submit</button>
             </form>

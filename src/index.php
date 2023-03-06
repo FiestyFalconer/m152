@@ -20,15 +20,18 @@ foreach ($posts as $unPost) {;
 
     $donnees = RecupererImages($unPost['idPost']);
 
-
     foreach ($donnees as $donnee) {
         if ($donnee['typeMedia'] == "jpg" || $donnee['typeMedia'] == "png" || $donnee['typeMedia'] == 'jpeg') {
             $affichage .= '<img id="images" class="card-img-top" src="./uploads/' . $donnee['nomMedia'] . '" alt="'. $donnee['nomMedia'] .'">';
         } else if ($donnee['typeMedia'] == "mp4") {
-            $affichage .= '  <video autoplay loop muted><source  src="./uploads/' . $donnee['nomMedia'] . '" alt="'.$donnee['nomMedia'] .'"></video>';
+            $affichage .= '<video autoplay loop muted><source  src="./uploads/' . $donnee['nomMedia'] . '" alt="'.$donnee['nomMedia'] .'"></video>';
+        }
+        else if ($donnee['typeMedia'] == "mp3"){
+            $affichage .='<audio title="Noir Désir" preload="auto" controls loop>
+            <source src="./uploads/'. $donnee['nomMedia'] .'" type="audio/mp3" alt="'.$donnee['nomMedia'] .'">
+            </audio>';
         }
     }
-
 
     $affichage .= '<div class="card-body"><p class="card-text">' . $unPost['commentaire'] . '</p></div>';
 
