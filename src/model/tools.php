@@ -26,6 +26,8 @@ function NouveauPost($commentaire, $nomFichiers, $targetDir, $typesDonnees)
         $mimeType = "";
         $etatTransaction = true;
 
+        $tableauNomDonnee = [];
+
         //insérer le commentaire dans la base de données
         $query = $db->prepare("
                 INSERT INTO `POST`(`commentaire`) 
@@ -48,9 +50,11 @@ function NouveauPost($commentaire, $nomFichiers, $targetDir, $typesDonnees)
             $mimeType = mime_content_type($_FILES["files"]["tmp_name"][$key]);
 
             //tester si c'est le bon type d'image et la bonne taille
-            if (in_array($mimeType, $typesDonnees) && $_FILES['files']['size'][$key] < UNE_IMAGE) {
+            if (in_array($mimeType, $typesDonnees) && $_FILES['files']['size'][$key] < UNE_IMAGE && $etatTransaction) {
                 //tester si on arrive a garder les images sur le serveur
                 if (move_uploaded_file($_FILES["files"]["tmp_name"][$key], $targetFilePath)) {
+                    
+                    array_push($tableauNomDonnee, $targetFilePath);
                     //message de success
                     $message = '<div id="messageErreur" class="alert alert-success">Post créé</div>';
                     //insérer le fichier dans la base de données
@@ -62,7 +66,14 @@ function NouveauPost($commentaire, $nomFichiers, $targetDir, $typesDonnees)
 
                 }
             } else {
-                $db->rollback();
+                if($etatTransaction){
+                    $db->rollback();
+
+                    foreach($tableauNomDonnee as $nom){
+                        unlink($nom);
+                    }
+
+                }
                 $etatTransaction = false;
                 //message d'erreur
                 $message = '<div id="messageErreur" class="alert alert-danger">ERREUR : Image(s) trop grand(es) ou pas une image </div>';
@@ -112,7 +123,7 @@ function RecupererPosts()
     }
 }
 
-function RecupererImages($idPost)
+function RecupererDonnees($idPost)
 {
     try {
         $query = ConnexionBD()->prepare("
@@ -124,5 +135,30 @@ function RecupererImages($idPost)
         return $query->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
         echo 'Exception reçue : ',  $e->getMessage(), "\n";
+    }
+}
+
+function SupprimerPost($idPost){
+    try {
+        $db = ConnexionBD();
+        $db->beginTransaction();
+        $donnees = RecupererDonnees($idPost);
+        $query = $db->prepare("
+            DELETE FROM `MEDIA` 
+            WHERE `idPost` = ?;
+                ");
+        $query->execute([$idPost]);
+
+        $query = $db->prepare("
+            DELETE FROM `POST` 
+            WHERE `idPost` = ?;
+                ");
+        $query->execute([$idPost]);
+        $db->commit();
+        return $donnees;
+    } catch (PDOException $e) {
+        $db->rollback();
+        echo 'Exception reçue : ',  $e->getMessage(), "\n";
+        return false;
     }
 }

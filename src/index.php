@@ -11,6 +11,7 @@
  */
 require_once "./model/tools.php";
 
+$messageSuppresion = filter_input(INPUT_GET,'messageSuppression');
 $posts = RecupererPosts();
 $affichage = '<div class="container"><div class="row">';
 $donnees = "";
@@ -18,7 +19,7 @@ $donnees = "";
 foreach ($posts as $unPost) {;
     $affichage .= '<div class="col-md-4"><div class="card mb-4 box-shadow">';
 
-    $donnees = RecupererImages($unPost['idPost']);
+    $donnees = RecupererDonnees($unPost['idPost']);
 
     foreach ($donnees as $donnee) {
         if ($donnee['typeMedia'] == "jpg" || $donnee['typeMedia'] == "png" || $donnee['typeMedia'] == 'jpeg') {
@@ -35,7 +36,7 @@ foreach ($posts as $unPost) {;
 
     $affichage .= '<div class="card-body"><p class="card-text">' . $unPost['commentaire'] . '</p></div>';
 
-    $affichage .= "</div></div>";
+    $affichage .= '<button><a href="./supprimer.php?idPost='.$unPost['idPost'].'">Supprimer Post</a></button><button><a href="./modifier.php?idPost='.$unPost['idPost'].'">Modifier</a></button></div></div>';
 }
 
 $affichage .= "</div></div>";
@@ -56,6 +57,8 @@ $affichage .= "</div></div>";
 </head>
 
 <body>
+    <a href="./supprimer.php?idPost="></a>
+
     <header class="py-3 mb-2 bg-primary textwhite">
         <ul class="nav nav-pills d-flex justify-content-between">
             <li calss="nav-item">
@@ -90,6 +93,10 @@ $affichage .= "</div></div>";
         <div class="container">
             <p><img src="./img/imageProfil.png" alt="imageProfil"></p>
         </div>
+        <div class="container">
+            <?php echo($messageSuppresion)?>
+        </div>
+        
 
         <?= $affichage ?>
 
