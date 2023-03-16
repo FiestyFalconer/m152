@@ -16,13 +16,12 @@ const TAILLE_MAX = 73400320;
 
 $submit = filter_input(INPUT_POST, 'submit', FILTER_SANITIZE_SPECIAL_CHARS);
 $message = "";
-$messageConfirmation = "";
 $typesDonnees = array("image/jpg", "image/png", "image/jpeg", "video/mp4", "audio/mpeg");
 
 if ($submit == "Submit") {
     $targetDir = dirname(__DIR__)."/src/uploads/";
     $commentaire = filter_input(INPUT_POST, 'commentaire', FILTER_SANITIZE_SPECIAL_CHARS);
-    $bool = true;
+    //$bool = true;
 
     $nomFichiers = array_filter($_FILES['files']['name']);
 

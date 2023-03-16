@@ -79,7 +79,7 @@ function NouveauPost($commentaire, $nomFichiers, $targetDir, $typesDonnees)
                 $message = '<div id="messageErreur" class="alert alert-danger">ERREUR : Image(s) trop grand(es) ou pas une image </div>';
             }
         }
-        //verifier l'etat de la trasaction
+        //verifier l'etat de la transaction
         if($etatTransaction){
             $db->commit();
         }
@@ -160,5 +160,126 @@ function SupprimerPost($idPost){
         $db->rollback();
         echo 'Exception reçue : ',  $e->getMessage(), "\n";
         return false;
+    }
+}
+
+function SupprimerDonnees($idPost, $nomDonnee){
+    try{
+        $db = ConnexionBD();
+        $db->beginTransaction();
+        $query = $db->prepare("
+            DELETE FROM `MEDIA` 
+            WHERE `idPost` = ?
+            AND `nomMedia` = ?
+                ");
+        $query->execute([$idPost,$nomDonnee]);
+        $db->commit();
+        return true;
+    } catch (PDOException $e) {
+        $db->rollback();
+        echo 'Exception reçue : ',  $e->getMessage(), "\n";
+        return false;
+    }
+}
+
+function RecupererUnPost($idPost){
+    try {
+        $query = ConnexionBD()->prepare("
+        SELECT `commentaire`
+        FROM `POST` 
+        WHERE `idPost` = ?
+        ");
+        $query->execute([$idPost]);
+        return $query->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        echo 'Exception reçue : ',  $e->getMessage(), "\n";
+    }
+}
+
+function ModificationCommentaire($idPost, $commentaire){
+    try{
+        $db = ConnexionBD();
+        $db->beginTransaction();
+        $query = $db->prepare("
+            UPDATE `POST` 
+            SET `commentaire`= ?,`modificationDate`= NOW()
+            WHERE `idPost` = ?
+        ");
+        $query->execute([$commentaire,$idPost]);
+        $db->commit();
+    } catch (PDOException $e) {
+        $db->rollback();
+        echo 'Exception reçue : ',  $e->getMessage(), "\n";
+    }
+}
+
+function ModificationDonneesPost($commentaire, $nomFichiers, $targetDir, $typesDonnees)
+{
+    try {
+        $db = ConnexionBD();
+        $db->beginTransaction();
+        
+        //declaration des variables
+        $message = "";
+        $uniquesavename = "";
+        $mimeType = "";
+        $etatTransaction = true;
+
+        $tableauNomDonnee = [];
+
+        //foreach pour parcourir les differents fichiers
+        foreach ($nomFichiers as $key => $val) {
+
+            //creer une partie du nom unique
+            $uniquesavename=time().uniqid(rand());
+            $nomFichier = basename($nomFichiers[$key]);
+            //avoir le path du fichier
+            $targetFilePath = $targetDir.$uniquesavename.$nomFichier;
+
+            //recuperer le type de fichier pour le mettre dans la base de données
+            $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
+            // recuperer le type de fichier grace a mime_content_type 
+            $mimeType = mime_content_type($_FILES["files"]["tmp_name"][$key]);
+
+            //tester si c'est le bon type d'image et la bonne taille
+            if (in_array($mimeType, $typesDonnees) && $_FILES['files']['size'][$key] < UNE_IMAGE && $etatTransaction) {
+                //tester si on arrive a garder les images sur le serveur
+                if (move_uploaded_file($_FILES["files"]["tmp_name"][$key], $targetFilePath)) {
+                    
+                    array_push($tableauNomDonnee, $targetFilePath);
+                    //message de success
+                    $message = '<div id="messageErreur" class="alert alert-success">Modification réussie</div>';
+                    //insérer le fichier dans la base de données
+                    $query = $db->prepare("
+                        INSERT INTO `MEDIA`(`typeMedia`, `nomMedia`, `idPost`) 
+                        VALUES (?,?,(SELECT MAX(`idPost`) FROM `POST` WHERE `commentaire` = ?));
+                    ");
+                    $query->execute([$fileType, $uniquesavename.$nomFichier, $commentaire]);
+
+                }
+            } else {
+                if($etatTransaction){
+                    $db->rollback();
+
+                    foreach($tableauNomDonnee as $nom){
+                        unlink($nom);
+                    }
+
+                }
+                $etatTransaction = false;
+                //message d'erreur
+                $message = '<div id="messageErreur" class="alert alert-danger">ERREUR : Image(s) trop grand(es) ou pas une image </div>';
+            }
+        }
+        //verifier l'etat de la transaction
+        if($etatTransaction){
+            $db->commit();
+        }
+        
+        //renvoie le message
+        return $message;
+
+    } catch (PDOException $e) {
+        echo 'Exception reçue : ',  $e->getMessage(), "\n";
     }
 }

@@ -23,20 +23,23 @@ foreach ($posts as $unPost) {;
 
     foreach ($donnees as $donnee) {
         if ($donnee['typeMedia'] == "jpg" || $donnee['typeMedia'] == "png" || $donnee['typeMedia'] == 'jpeg') {
-            $affichage .= '<img id="images" class="card-img-top" src="./uploads/' . $donnee['nomMedia'] . '" alt="'. $donnee['nomMedia'] .'">';
+            $affichage .= '<img id="images" class="card-img-top" src="./uploads/' . $donnee['nomMedia'] . '" alt="'. $donnee['nomMedia'] .'">
+            <a class="btn btn-primary" href="./supprimerDonnees.php?idPost='.$unPost['idPost'].'&nomDonnee='.$donnee['nomMedia'].'">Supprimer donnée</a>';
         } else if ($donnee['typeMedia'] == "mp4") {
-            $affichage .= '<video autoplay loop muted><source  src="./uploads/' . $donnee['nomMedia'] . '" alt="'.$donnee['nomMedia'] .'"></video>';
+            $affichage .= '<video autoplay loop muted><source  src="./uploads/' . $donnee['nomMedia'] . '" alt="'.$donnee['nomMedia'] .'"></video>
+            <a class="btn btn-primary" href="./supprimerDonnees.php?idPost='.$unPost['idPost'].'&nomDonnee='.$donnee['nomMedia'].'">Supprimer donnée</a>';
         }
         else if ($donnee['typeMedia'] == "mp3"){
             $affichage .='<audio title="Noir Désir" preload="auto" controls loop>
             <source src="./uploads/'. $donnee['nomMedia'] .'" type="audio/mp3" alt="'.$donnee['nomMedia'] .'">
-            </audio>';
+            </audio>
+            <a class="btn btn-primary" href="./supprimerDonnees.php?idPost='.$unPost['idPost'].'&nomDonnee='.$donnee['nomMedia'].'">Supprimer donnée</a>';
         }
     }
 
     $affichage .= '<div class="card-body"><p class="card-text">' . $unPost['commentaire'] . '</p></div>';
 
-    $affichage .= '<button><a href="./supprimer.php?idPost='.$unPost['idPost'].'">Supprimer Post</a></button><button><a href="./modifier.php?idPost='.$unPost['idPost'].'">Modifier</a></button></div></div>';
+    $affichage .= '<a class="btn btn-primary" href="./supprimerPost.php?idPost='.$unPost['idPost'].'">Supprimer Post</a><a class="btn btn-primary" href="./modifier.php?idPost='.$unPost['idPost'].'">Modifier</a></div></div>';
 }
 
 $affichage .= "</div></div>";
