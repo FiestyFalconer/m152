@@ -13,7 +13,7 @@ require_once "./model/tools.php";
 //constantes
 const TAILLE_MAX = 73400320;
 
-
+//declaration des variables
 $submit = filter_input(INPUT_POST, 'submit', FILTER_SANITIZE_SPECIAL_CHARS);
 $message = "";
 $typesDonnees = array("image/jpg", "image/png", "image/jpeg", "video/mp4", "audio/mpeg");
@@ -21,7 +21,6 @@ $typesDonnees = array("image/jpg", "image/png", "image/jpeg", "video/mp4", "audi
 if ($submit == "Submit") {
     $targetDir = dirname(__DIR__)."/src/uploads/";
     $commentaire = filter_input(INPUT_POST, 'commentaire', FILTER_SANITIZE_SPECIAL_CHARS);
-    //$bool = true;
 
     $nomFichiers = array_filter($_FILES['files']['name']);
 

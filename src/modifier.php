@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Nom, Prenom: DE CASTILHO E SOUSA Rodrigo
  * Projet:      Intégrer des contenus multimédias dans des applications Web
@@ -28,6 +27,7 @@ if ($submit == "Submit") {
 
     $nomFichiers = array_filter($_FILES['files']['name']);
     $sizeFiles = 0;
+    
     //recuperer la somme des tailees des images
     foreach ($_FILES['files']['size'] as $value) {
         $sizeFiles += $value;
@@ -41,14 +41,14 @@ if ($submit == "Submit") {
                 $message = ModificationDonneesPost($nouveauCommentaire, $nomFichiers, $targetDir, $typesDonnees);
             }
             else{
-                 $message = ModificationDonneesPost($commentaire, $nomFichiers, $targetDir, $typesDonnees);
+                $message = ModificationDonneesPost($commentaire, $nomFichiers, $targetDir, $typesDonnees);
             }
            
         } else {
             $message = '<div id="messageErreur" class="alert alert-danger">ERREUR : Image(s) trop grand(es) </div>';
             exit();
         }
-    } else if ($commentaire != "" && empty($nomFichiers)) {
+    } else if ($nouveauCommentaire != "" && empty($nomFichiers)) {
 
         if ($commentaire != $nouveauCommentaire) {
             ModificationCommentaire($idPost, $nouveauCommentaire);
