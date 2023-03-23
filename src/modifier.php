@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Nom, Prenom: DE CASTILHO E SOUSA Rodrigo
  * Projet:      Intégrer des contenus multimédias dans des applications Web
@@ -15,8 +16,10 @@ const TAILLE_MAX = 73400320;
 
 $idPost = filter_input(INPUT_GET, 'idPost', FILTER_SANITIZE_NUMBER_INT);
 $submit = filter_input(INPUT_POST, 'submit', FILTER_SANITIZE_SPECIAL_CHARS);
-$commentaire =  RecupererUnPost($idPost)['commentaire'];
+$commentaire =  "";
+$affichage = "";
 
+$messageSuppresion = filter_input(INPUT_GET,'messageSuppression');
 $message = "";
 $typesDonnees = array("image/jpg", "image/png", "image/jpeg", "video/mp4", "audio/mpeg");
 
@@ -27,23 +30,21 @@ if ($submit == "Submit") {
 
     $nomFichiers = array_filter($_FILES['files']['name']);
     $sizeFiles = 0;
-    
+
     //recuperer la somme des tailees des images
     foreach ($_FILES['files']['size'] as $value) {
         $sizeFiles += $value;
     }
 
-    if ($commentaire != "" && !empty($nomFichiers)) {
+    if ($nouveauCommentaire != "" && !empty($nomFichiers)) {
 
         if ($sizeFiles < TAILLE_MAX) {
             if ($commentaire != $nouveauCommentaire) {
                 ModificationCommentaire($idPost, $nouveauCommentaire);
                 $message = ModificationDonneesPost($nouveauCommentaire, $nomFichiers, $targetDir, $typesDonnees);
-            }
-            else{
+            } else {
                 $message = ModificationDonneesPost($commentaire, $nomFichiers, $targetDir, $typesDonnees);
             }
-           
         } else {
             $message = '<div id="messageErreur" class="alert alert-danger">ERREUR : Image(s) trop grand(es) </div>';
             exit();
@@ -60,6 +61,7 @@ if ($submit == "Submit") {
 }
 
 $commentaire = RecupererUnPost($idPost)['commentaire'];
+$affichage = AfficherDonnees($idPost);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -118,6 +120,11 @@ $commentaire = RecupererUnPost($idPost)['commentaire'];
                 <button type="submit" name="submit" class="btn btn-primary" value="Submit">Submit</button>
             </form>
             <?= $message ?>
+            <?= $messageSuppresion?>
+
+        </div>
+        <div class="container">
+            <?= $affichage ?>
         </div>
 
     </main>

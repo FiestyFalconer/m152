@@ -14,6 +14,36 @@ require_once("baseDonne.php");
 
 const UNE_IMAGE = 3145728;
 
+function AfficherDonnees($idPost)
+{
+    $affichage = '<div class="container"><div class="row">';
+
+    $donnees = RecupererDonnees($idPost);
+
+    foreach ($donnees as $donnee) {
+        $affichage .= '<div class="col-md-4"><div class="card mb-4 box-shadow">';
+
+        if ($donnee['typeMedia'] == "jpg" || $donnee['typeMedia'] == "png" || $donnee['typeMedia'] == 'jpeg') {
+            $affichage .= '<img id="images" class="card-img-top" src="./uploads/' . $donnee['nomMedia'] . '" alt="' . $donnee['nomMedia'] . '">
+            <a class="btn btn-primary" href="./supprimerDonnees.php?idPost=' . $idPost . '&nomDonnee=' . $donnee['nomMedia'] . '">Supprimer donnée</a>';
+        } else if ($donnee['typeMedia'] == "mp4") {
+            $affichage .= '<video autoplay loop muted><source  src="./uploads/' . $donnee['nomMedia'] . '" alt="' . $donnee['nomMedia'] . '"></video>
+            <a class="btn btn-primary" href="./supprimerDonnees.php?idPost=' . $idPost . '&nomDonnee=' . $donnee['nomMedia'] . '">Supprimer donnée</a>';
+        } else if ($donnee['typeMedia'] == "mp3") {
+            $affichage .= '<audio title="Noir Désir" preload="auto" controls loop>
+            <source src="./uploads/' . $donnee['nomMedia'] . '" type="audio/mp3" alt="' . $donnee['nomMedia'] . '">
+            </audio>
+            <a class="btn btn-primary" href="./supprimerDonnees.php?idPost=' . $idPost . '&nomDonnee=' . $donnee['nomMedia'] . '">Supprimer donnée</a>';
+        }
+
+        $affichage .= '</div></div>';
+    }
+
+    $affichage .= "</div></div>";
+
+    return $affichage;
+}
+
 function NouveauPost($commentaire, $nomFichiers, $targetDir, $typesDonnees)
 {
     try {
@@ -39,10 +69,10 @@ function NouveauPost($commentaire, $nomFichiers, $targetDir, $typesDonnees)
         foreach ($nomFichiers as $key => $val) {
 
             //creer une partie du nom unique
-            $uniquesavename=time().uniqid(rand());
+            $uniquesavename = time() . uniqid(rand());
             $nomFichier = basename($nomFichiers[$key]);
             //avoir le path du fichier
-            $targetFilePath = $targetDir.$uniquesavename.$nomFichier;
+            $targetFilePath = $targetDir . $uniquesavename . $nomFichier;
 
             //recuperer le type de fichier pour le mettre dans la base de données
             $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
@@ -53,7 +83,7 @@ function NouveauPost($commentaire, $nomFichiers, $targetDir, $typesDonnees)
             if (in_array($mimeType, $typesDonnees) && $_FILES['files']['size'][$key] < UNE_IMAGE && $etatTransaction) {
                 //tester si on arrive a garder les images sur le serveur
                 if (move_uploaded_file($_FILES["files"]["tmp_name"][$key], $targetFilePath)) {
-                    
+
                     array_push($tableauNomDonnee, $targetFilePath);
                     //message de success
                     $message = '<div id="messageErreur" class="alert alert-success">Post créé</div>';
@@ -62,17 +92,15 @@ function NouveauPost($commentaire, $nomFichiers, $targetDir, $typesDonnees)
                         INSERT INTO `MEDIA`(`typeMedia`, `nomMedia`, `idPost`) 
                         VALUES (?,?,(SELECT MAX(`idPost`) FROM `POST` WHERE `commentaire` = ?));
                     ");
-                    $query->execute([$fileType, $uniquesavename.$nomFichier, $commentaire]);
-
+                    $query->execute([$fileType, $uniquesavename . $nomFichier, $commentaire]);
                 }
             } else {
-                if($etatTransaction){
+                if ($etatTransaction) {
                     $db->rollback();
 
-                    foreach($tableauNomDonnee as $nom){
+                    foreach ($tableauNomDonnee as $nom) {
                         unlink($nom);
                     }
-
                 }
                 $etatTransaction = false;
                 //message d'erreur
@@ -80,13 +108,12 @@ function NouveauPost($commentaire, $nomFichiers, $targetDir, $typesDonnees)
             }
         }
         //verifier l'etat de la transaction
-        if($etatTransaction){
+        if ($etatTransaction) {
             $db->commit();
         }
-        
+
         //renvoie le message
         return $message;
-
     } catch (PDOException $e) {
         echo 'Exception reçue : ',  $e->getMessage(), "\n";
     }
@@ -138,7 +165,8 @@ function RecupererDonnees($idPost)
     }
 }
 
-function SupprimerPost($idPost){
+function SupprimerPost($idPost, $donnees, $targetDir)
+{
     try {
         $db = ConnexionBD();
         $db->beginTransaction();
@@ -155,6 +183,9 @@ function SupprimerPost($idPost){
                 ");
         $query->execute([$idPost]);
         $db->commit();
+        foreach ($donnees as $donnee) {
+            unlink($targetDir . $donnee['nomMedia']);
+        }
         return $donnees;
     } catch (PDOException $e) {
         $db->rollback();
@@ -163,8 +194,9 @@ function SupprimerPost($idPost){
     }
 }
 
-function SupprimerDonnees($idPost, $nomDonnee){
-    try{
+function SupprimerDonnees($idPost, $nomDonnee, $targetDir)
+{
+    try {
         $db = ConnexionBD();
         $db->beginTransaction();
         $query = $db->prepare("
@@ -172,8 +204,9 @@ function SupprimerDonnees($idPost, $nomDonnee){
             WHERE `idPost` = ?
             AND `nomMedia` = ?
                 ");
-        $query->execute([$idPost,$nomDonnee]);
+        $query->execute([$idPost, $nomDonnee]);
         $db->commit();
+        unlink($targetDir . $nomDonnee);
         return true;
     } catch (PDOException $e) {
         $db->rollback();
@@ -182,7 +215,8 @@ function SupprimerDonnees($idPost, $nomDonnee){
     }
 }
 
-function RecupererUnPost($idPost){
+function RecupererUnPost($idPost)
+{
     try {
         $query = ConnexionBD()->prepare("
         SELECT `commentaire`
@@ -196,8 +230,9 @@ function RecupererUnPost($idPost){
     }
 }
 
-function ModificationCommentaire($idPost, $commentaire){
-    try{
+function ModificationCommentaire($idPost, $commentaire)
+{
+    try {
         $db = ConnexionBD();
         $db->beginTransaction();
         $query = $db->prepare("
@@ -205,7 +240,7 @@ function ModificationCommentaire($idPost, $commentaire){
             SET `commentaire`= ?,`modificationDate`= NOW()
             WHERE `idPost` = ?
         ");
-        $query->execute([$commentaire,$idPost]);
+        $query->execute([$commentaire, $idPost]);
         $db->commit();
     } catch (PDOException $e) {
         $db->rollback();
@@ -218,7 +253,7 @@ function ModificationDonneesPost($commentaire, $nomFichiers, $targetDir, $typesD
     try {
         $db = ConnexionBD();
         $db->beginTransaction();
-        
+
         //declaration des variables
         $message = "";
         $uniquesavename = "";
@@ -231,10 +266,10 @@ function ModificationDonneesPost($commentaire, $nomFichiers, $targetDir, $typesD
         foreach ($nomFichiers as $key => $val) {
 
             //creer une partie du nom unique
-            $uniquesavename=time().uniqid(rand());
+            $uniquesavename = time() . uniqid(rand());
             $nomFichier = basename($nomFichiers[$key]);
             //avoir le path du fichier
-            $targetFilePath = $targetDir.$uniquesavename.$nomFichier;
+            $targetFilePath = $targetDir . $uniquesavename . $nomFichier;
 
             //recuperer le type de fichier pour le mettre dans la base de données
             $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
@@ -245,7 +280,7 @@ function ModificationDonneesPost($commentaire, $nomFichiers, $targetDir, $typesD
             if (in_array($mimeType, $typesDonnees) && $_FILES['files']['size'][$key] < UNE_IMAGE && $etatTransaction) {
                 //tester si on arrive a garder les images sur le serveur
                 if (move_uploaded_file($_FILES["files"]["tmp_name"][$key], $targetFilePath)) {
-                    
+
                     array_push($tableauNomDonnee, $targetFilePath);
                     //message de success
                     $message = '<div id="messageErreur" class="alert alert-success">Modification réussie</div>';
@@ -254,17 +289,15 @@ function ModificationDonneesPost($commentaire, $nomFichiers, $targetDir, $typesD
                         INSERT INTO `MEDIA`(`typeMedia`, `nomMedia`, `idPost`) 
                         VALUES (?,?,(SELECT MAX(`idPost`) FROM `POST` WHERE `commentaire` = ?));
                     ");
-                    $query->execute([$fileType, $uniquesavename.$nomFichier, $commentaire]);
-
+                    $query->execute([$fileType, $uniquesavename . $nomFichier, $commentaire]);
                 }
             } else {
-                if($etatTransaction){
+                if ($etatTransaction) {
                     $db->rollback();
 
-                    foreach($tableauNomDonnee as $nom){
+                    foreach ($tableauNomDonnee as $nom) {
                         unlink($nom);
                     }
-
                 }
                 $etatTransaction = false;
                 //message d'erreur
@@ -272,13 +305,12 @@ function ModificationDonneesPost($commentaire, $nomFichiers, $targetDir, $typesD
             }
         }
         //verifier l'etat de la transaction
-        if($etatTransaction){
+        if ($etatTransaction) {
             $db->commit();
         }
-        
+
         //renvoie le message
         return $message;
-
     } catch (PDOException $e) {
         echo 'Exception reçue : ',  $e->getMessage(), "\n";
     }

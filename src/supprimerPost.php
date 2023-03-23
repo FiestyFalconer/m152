@@ -7,15 +7,14 @@ $message = "";
 
 $targetDir = dirname(__DIR__)."/src/uploads/";
 
-if($donnees = SupprimerPost($idPost)){
+if($donnees = SupprimerPost($idPost, $donnees,$targetDir)){
+    $message = '<div id="messageErreur" class="alert alert-success">Suppression réussi</div>';
 
-    foreach($donnees as $donnee){
-        unlink($targetDir.$donnee['nomMedia']);
-    }
-
-    $message = '<div class="alert alert-success">suppression réussi</div>';
-}else{
-    $message = '<div class="alert alert-danger">échec de la suppression</div>';
+}else if($donnee == null){
+    $message = '<div id="messageErreur" class="alert alert-success">Suppression réussi</div>';
+}
+else{
+    $message = '<div id="messageErreur" class="alert alert-danger">Échec de la suppression</div>';
 }
 
 header("Location: ./index.php?messageSuppression=".$message);

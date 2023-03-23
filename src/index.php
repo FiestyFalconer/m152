@@ -23,17 +23,14 @@ foreach ($posts as $unPost) {;
 
     foreach ($donnees as $donnee) {
         if ($donnee['typeMedia'] == "jpg" || $donnee['typeMedia'] == "png" || $donnee['typeMedia'] == 'jpeg') {
-            $affichage .= '<img id="images" class="card-img-top" src="./uploads/' . $donnee['nomMedia'] . '" alt="'. $donnee['nomMedia'] .'">
-            <a class="btn btn-primary" href="./supprimerDonnees.php?idPost='.$unPost['idPost'].'&nomDonnee='.$donnee['nomMedia'].'">Supprimer donnée</a>';
+            $affichage .= '<img id="images" class="card-img-top" src="./uploads/' . $donnee['nomMedia'] . '" alt="'. $donnee['nomMedia'] .'">';
         } else if ($donnee['typeMedia'] == "mp4") {
-            $affichage .= '<video autoplay loop muted><source  src="./uploads/' . $donnee['nomMedia'] . '" alt="'.$donnee['nomMedia'] .'"></video>
-            <a class="btn btn-primary" href="./supprimerDonnees.php?idPost='.$unPost['idPost'].'&nomDonnee='.$donnee['nomMedia'].'">Supprimer donnée</a>';
+            $affichage .= '<video autoplay loop muted><source  src="./uploads/' . $donnee['nomMedia'] . '" alt="'.$donnee['nomMedia'] .'"></video>';
         }
         else if ($donnee['typeMedia'] == "mp3"){
             $affichage .='<audio title="Noir Désir" preload="auto" controls loop>
             <source src="./uploads/'. $donnee['nomMedia'] .'" type="audio/mp3" alt="'.$donnee['nomMedia'] .'">
-            </audio>
-            <a class="btn btn-primary" href="./supprimerDonnees.php?idPost='.$unPost['idPost'].'&nomDonnee='.$donnee['nomMedia'].'">Supprimer donnée</a>';
+            </audio>';
         }
     }
 

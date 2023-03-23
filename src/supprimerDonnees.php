@@ -8,15 +8,10 @@ $message = "";
 
 $targetDir = dirname(__DIR__)."/src/uploads/";
 
-if(SupprimerDonnees($idPost,$nomDonnee)){
-
-    var_dump($targetDir.$nomDonnee);
-    unlink($targetDir.$nomDonnee);
-    
-
-    $message = '<div class="alert alert-success">suppression réussi</div>';
+if(SupprimerDonnees($idPost,$nomDonnee,$targetDir)){
+    $message = '<div id="messageErreur" class="alert alert-success">Suppression réussi</div>';
 }else{
-    $message = '<div class="alert alert-danger">échec de la suppression</div>';
+    $message = '<div id="messageErreur" class="alert alert-danger">Échec de la suppression</div>';
 }
 
-header("Location: ./index.php?messageSuppression=".$message);
+header("Location: ./modifier.php?messageSuppression=".$message."&idPost=".$idPost);
