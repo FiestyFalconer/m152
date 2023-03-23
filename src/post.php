@@ -100,15 +100,16 @@ if ($submit == "Submit") {
                 </div>
                 <div class="form-group">
                     <label for="File">Mettez une photo</label>
-                    <input type="file" name="files[]" id="upload" accept="audio/mp3, image/png, image/jpg, image/jpeg, video/mp4" multiple class="form-control-file" id="File">
+                    <input type="file" name="files[]" id="file" accept="audio/mp3, image/png, image/jpg, image/jpeg, video/mp4" multiple class="form-control-file" id="File">
                 </div>
-                <button type="submit" name="submit" id="submit" class="btn btn-primary" value="Submit">Submit</button>
+                <button type="submit" name="submit" id="submit"  class="btn btn-primary" value="Submit">Submit</button>
             </form>
 
             <?=$message?>
 
         </div>
     </main>
+    <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
     <script src="./js/javascript.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
 </body>

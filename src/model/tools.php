@@ -171,6 +171,7 @@ function SupprimerPost($idPost, $donnees, $targetDir)
         $db = ConnexionBD();
         $db->beginTransaction();
         $donnees = RecupererDonnees($idPost);
+        //supprimmer toutes les données
         $query = $db->prepare("
             DELETE FROM `MEDIA` 
             WHERE `idPost` = ?;
@@ -183,6 +184,7 @@ function SupprimerPost($idPost, $donnees, $targetDir)
                 ");
         $query->execute([$idPost]);
         $db->commit();
+        //effacer les données du serveur
         foreach ($donnees as $donnee) {
             unlink($targetDir . $donnee['nomMedia']);
         }
@@ -199,13 +201,23 @@ function SupprimerDonnees($idPost, $nomDonnee, $targetDir)
     try {
         $db = ConnexionBD();
         $db->beginTransaction();
+        //supprimmer la donnée desirer
         $query = $db->prepare("
             DELETE FROM `MEDIA` 
             WHERE `idPost` = ?
             AND `nomMedia` = ?
                 ");
         $query->execute([$idPost, $nomDonnee]);
+        //update de la date de modification
+        $query = $db->prepare("
+            UPDATE `POST` 
+            SET `modificationDate`= NOW()
+            WHERE `idPost` = ?
+            ");
+        $query->execute([$idPost]);
+
         $db->commit();
+        //effacer la donnée du serveur
         unlink($targetDir . $nomDonnee);
         return true;
     } catch (PDOException $e) {
@@ -248,7 +260,7 @@ function ModificationCommentaire($idPost, $commentaire)
     }
 }
 
-function ModificationDonneesPost($commentaire, $nomFichiers, $targetDir, $typesDonnees)
+function ModificationDonneesPost($commentaire, $nomFichiers, $targetDir, $typesDonnees, $idPost)
 {
     try {
         $db = ConnexionBD();
@@ -275,6 +287,14 @@ function ModificationDonneesPost($commentaire, $nomFichiers, $targetDir, $typesD
             $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
             // recuperer le type de fichier grace a mime_content_type 
             $mimeType = mime_content_type($_FILES["files"]["tmp_name"][$key]);
+
+            //update de la date de modification
+            $query = $db->prepare("
+            UPDATE `POST` 
+            SET `modificationDate`= NOW()
+            WHERE `idPost` = ?
+            ");
+            $query->execute([$idPost]);
 
             //tester si c'est le bon type d'image et la bonne taille
             if (in_array($mimeType, $typesDonnees) && $_FILES['files']['size'][$key] < UNE_IMAGE && $etatTransaction) {

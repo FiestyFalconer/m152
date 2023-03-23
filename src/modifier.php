@@ -41,9 +41,9 @@ if ($submit == "Submit") {
         if ($sizeFiles < TAILLE_MAX) {
             if ($commentaire != $nouveauCommentaire) {
                 ModificationCommentaire($idPost, $nouveauCommentaire);
-                $message = ModificationDonneesPost($nouveauCommentaire, $nomFichiers, $targetDir, $typesDonnees);
+                $message = ModificationDonneesPost($nouveauCommentaire, $nomFichiers, $targetDir, $typesDonnees, $idPost);
             } else {
-                $message = ModificationDonneesPost($commentaire, $nomFichiers, $targetDir, $typesDonnees);
+                $message = ModificationDonneesPost($commentaire, $nomFichiers, $targetDir, $typesDonnees,$idPost);
             }
         } else {
             $message = '<div id="messageErreur" class="alert alert-danger">ERREUR : Image(s) trop grand(es) </div>';
